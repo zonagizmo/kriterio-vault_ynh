@@ -1,0 +1,21 @@
+#!/bin/bash
+# No probado contra una instancia YunoHost real — revisar con --debug.
+#
+# Con packaging_format=2, el core deprovisiona automáticamente DESPUÉS de
+# este script los recursos declarados en manifest.toml (install_dir,
+# database, system_user, ports) — no hay que borrarlos aquí a mano. Este
+# script solo limpia lo que NO es un "recurso": la configuración de
+# NGINX/systemd y el directorio de logs.
+source _common.sh
+source /usr/share/yunohost/helpers
+
+ynh_script_progression "Eliminando el servicio systemd..."
+ynh_remove_systemd_config
+
+ynh_script_progression "Eliminando la configuración de NGINX..."
+ynh_remove_nginx_config
+
+ynh_script_progression "Eliminando logs..."
+ynh_secure_remove --file="/var/log/$app"
+
+ynh_script_progression "Eliminación completada" --last

@@ -1,0 +1,49 @@
+#!/bin/bash
+# ─────────────────────────────────────────────────────────────
+# Nota de origen: paquete NO probado contra una instancia YunoHost real
+# (no había ninguna disponible al escribirlo). Basado en las convenciones de
+# helpers 2.1 / packaging_format 2. Revisar con `yunohost app install
+# --debug` y ajustar nombres de helpers si el core instalado difiere.
+#
+# Con packaging_format=2, los recursos declarados en manifest.toml
+# (system_user, install_dir, database, ports, apt) ya están aprovisionados
+# por el core ANTES de que este script se ejecute — $install_dir, $port,
+# $db_name, $db_pwd, $app llegan como variables de entorno ya listas.
+# ─────────────────────────────────────────────────────────────
+source _common.sh
+source /usr/share/yunohost/helpers
+
+ynh_script_progression "Configurando el entorno virtual de Python..."
+python3 -m venv "$install_dir/backend/venv"
+"$install_dir/backend/venv/bin/pip" install --upgrade pip --quiet
+"$install_dir/backend/venv/bin/pip" install --quiet -r "$install_dir/backend/requirements.txt"
+
+ynh_script_progression "Configurando la aplicación (.env)..."
+secret_key=$(ynh_string_random --length=32)
+ynh_app_setting_set --app=$app --key=secret_key --value="$secret_key"
+cat > "$install_dir/backend/.env" <<EOF
+DATABASE_URL=postgresql://$db_name:$db_pwd@localhost:5432/$db_name
+SECRET_KEY=$secret_key
+EOF
+
+ynh_script_progression "Configurando NGINX..."
+ynh_add_nginx_config
+
+ynh_script_progression "Configurando el servicio systemd..."
+ynh_add_systemd_config
+
+mkdir -p "/var/log/$app"
+chown "$app:$app" "/var/log/$app"
+
+ynh_script_progression "Asegurando permisos..."
+chmod 750 "$install_dir"
+chmod -R o-rwx "$install_dir"
+chown -R "$app:$app" "$install_dir"
+chmod 600 "$install_dir/backend/.env"
+chown "$app:$app" "$install_dir/backend/.env"
+
+ynh_script_progression "Arrancando la aplicación..."
+ynh_systemd_action --service_name=$app --action="start" \
+    --line_match="Application startup complete" --log_path="/var/log/$app/$app.log"
+
+ynh_script_progression "Instalación completada" --last

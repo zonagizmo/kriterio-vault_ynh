@@ -1,0 +1,18 @@
+#!/bin/bash
+# No probado contra una instancia YunoHost real — revisar con --debug.
+source _common.sh
+source /usr/share/yunohost/helpers
+
+ynh_script_progression "Copiando los ficheros de la aplicación..."
+# El venv se excluye a propósito: es grande y se reconstruye en segundos
+# desde requirements.txt al restaurar — no es "dato", es entorno.
+ynh_backup --src_path="$install_dir" --exclude="backend/venv"
+
+ynh_script_progression "Copiando la configuración de NGINX y systemd..."
+ynh_backup --src_path="/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_backup --src_path="/etc/systemd/system/$app.service"
+
+ynh_script_progression "Volcando la base de datos PostgreSQL..."
+ynh_psql_dump_db --db_name=$db_name > db.sql
+
+ynh_script_progression "Copia de seguridad completada" --last

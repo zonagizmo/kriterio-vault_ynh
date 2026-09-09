@@ -1,0 +1,75 @@
+packaging_format = 2
+
+id = "kriteriovault"
+name = "Kriterio Vault"
+description.en = "Central sync server for Kriterio Vault (accounting/management app)"
+description.es = "Servidor central de sincronización de Kriterio Vault (app de gestión y contabilidad)"
+
+version = "1.10.0~ynh1"
+
+maintainers = ["zonagizmo"]
+
+[upstream]
+license = "free"
+website = "https://github.com/zonagizmo/kriterio-vault"
+code = "https://github.com/zonagizmo/kriterio-vault"
+
+[integration]
+yunohost = ">=11.2"
+architectures = "all"
+multi_instance = true
+ldap = "not_relevant"
+sso = true
+disk = "200M"
+ram.build = "256M"
+ram.runtime = "128M"
+
+[install]
+    [install.domain]
+    type = "domain"
+
+    [install.path]
+    type = "path"
+    default = "/"
+
+    [install.admin]
+    type = "user"
+
+    [install.init_main_permission]
+    # "all_users" = solo usuarios de este YunoHost logueados vía SSO.
+    # No se ofrece "visitors" a propósito: la API de sincronización maneja
+    # datos de contabilidad/terceros, y hoy no tiene autenticación propia
+    # (decisión tomada al diseñar la sincronización) — el SSO de YunoHost
+    # es la única capa de protección delante de ella en este empaquetado.
+    type = "group"
+    default = "all_users"
+
+[resources]
+    [resources.system_user]
+
+    [resources.install_dir]
+
+    [resources.permissions]
+        [resources.permissions.main]
+        url = "/"
+        show_tile = false
+        protected = true
+
+    [resources.apt]
+        packages = "python3-venv, python3-pip, build-essential"
+
+    [resources.database]
+        type = "postgresql"
+
+    [resources.ports]
+        [resources.ports.main]
+        default = 8000
+
+    [resources.sources]
+        [resources.sources.main]
+        # PENDIENTE: requiere que github.com/zonagizmo/kriterio-vault sea
+        # público (o al menos esta rama/tag) — ver doc/DESCRIPTION.md.
+        url = "https://github.com/zonagizmo/kriterio-vault/archive/refs/heads/main.tar.gz"
+        sha256 = "REEMPLAZAR_TRAS_PUBLICAR_EL_REPO"
+        format = "tar.gz"
+        in_subdir = true

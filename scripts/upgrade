@@ -1,0 +1,31 @@
+#!/bin/bash
+# No probado contra una instancia YunoHost real — revisar con --debug.
+source _common.sh
+source /usr/share/yunohost/helpers
+
+ynh_script_progression "Deteniendo la aplicación..."
+ynh_systemd_action --service_name=$app --action="stop"
+
+ynh_script_progression "Actualizando el código fuente..."
+# Conserva .env (secretos/config) y venv (se reinstala aparte, más rápido
+# que recrearlo desde cero en cada actualización).
+ynh_setup_source --dest_dir="$install_dir" --source_id="main" --keep="backend/.env backend/venv backend/instalacion.json backend/backups"
+
+ynh_script_progression "Actualizando dependencias de Python..."
+"$install_dir/backend/venv/bin/pip" install --quiet -r "$install_dir/backend/requirements.txt"
+
+ynh_script_progression "Actualizando configuración de NGINX y systemd..."
+ynh_add_nginx_config
+ynh_add_systemd_config
+
+ynh_script_progression "Asegurando permisos..."
+chown -R "$app:$app" "$install_dir"
+chmod 600 "$install_dir/backend/.env"
+
+ynh_script_progression "Arrancando la aplicación..."
+# La propia app aplica sus migraciones de esquema al arrancar
+# (_migraciones() en app/main.py) — no hace falta ningún paso extra aquí.
+ynh_systemd_action --service_name=$app --action="start" \
+    --line_match="Application startup complete" --log_path="/var/log/$app/$app.log"
+
+ynh_script_progression "Actualización completada" --last

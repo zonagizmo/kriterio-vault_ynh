@@ -23,28 +23,25 @@ dónde bajar el código real (`resources.sources.main.url` en
 `manifest.toml`). Es el patrón estándar de YunoHost: `<app>` + `<app>_ynh`
 como dos repos separados.
 
-## Pendiente antes de poder instalarlo (no lo puedo hacer yo)
+## Pendiente antes de poder instalarlo
 
-1. **Crear este repositorio en GitHub** (`kriterio-vault_ynh` o el nombre
-   que prefieras) y subir esta carpeta — igual que hicimos con el repo
-   principal: lo creas tú en github.com, me pasas la URL SSH, y hago el
-   `git init` + push.
-2. **Hacer público el repo principal `kriterio-vault`** (o al menos la rama
-   `main`): `ynh_setup_source` descarga el tarball de GitHub, y GitHub no
-   sirve tarballs de repos privados sin autenticación. Es la decisión que ya
-   tomamos al hablar de esto — revisa antes que no haya nada sensible en el
-   historial de commits (no debería: `.gitignore` excluye bases de datos,
-   backups y `.env` desde el primer commit).
-3. **Calcular el checksum real** del tarball, una vez el repo sea público:
+Hecho: repo `kriterio-vault_ynh` creado y con el código; repo principal
+`kriterio-vault` hecho público; checksum del tarball calculado y puesto en
+`manifest.toml`.
+
+Queda:
+
+1. **Instalarlo en un YunoHost real** con `--debug` (ver más abajo) — no
+   probado todavía contra ninguna instancia, es el paso que más puede
+   necesitar ajustes.
+2. **Recalcular el checksum tras cada cambio en el repo principal** (apunta
+   a la rama `main`, no a un tag fijo — ver el comentario en `manifest.toml`):
    ```bash
    curl -sL https://github.com/zonagizmo/kriterio-vault/archive/refs/heads/main.tar.gz | sha256sum
    ```
-   y pegar el resultado en `manifest.toml`, campo `resources.sources.main.sha256`
-   (hoy tiene el placeholder `REEMPLAZAR_TRAS_PUBLICAR_EL_REPO`).
-4. **Decidir la licencia** del paquete (`manifest.toml` tiene `license = "free"`
-   como placeholder — cámbialo por un identificador SPDX si vas a publicarlo
-   en el catálogo oficial de apps de YunoHost; si es solo para tu propio uso,
-   puedes dejarlo así).
+3. **Licencia del paquete** (`manifest.toml` tiene `license = "free"` como
+   placeholder — válido para uso privado; cámbialo por un identificador SPDX
+   si algún día lo publicas en el catálogo oficial de apps de YunoHost).
 
 ## Instalación (una vez resuelto lo anterior)
 

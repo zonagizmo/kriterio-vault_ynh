@@ -67,9 +67,10 @@ ram.runtime = "128M"
 
     [resources.sources]
         [resources.sources.main]
-        # PENDIENTE: requiere que github.com/zonagizmo/kriterio-vault sea
-        # público (o al menos esta rama/tag) — ver doc/DESCRIPTION.md.
+        # Apunta a la rama main: al no ser un tag fijo, el checksum queda
+        # desactualizado en cuanto haya nuevos commits — hay que recalcularlo
+        # (ver README.md de este paquete) antes de cada `yunohost app upgrade`.
         url = "https://github.com/zonagizmo/kriterio-vault/archive/refs/heads/main.tar.gz"
-        sha256 = "REEMPLAZAR_TRAS_PUBLICAR_EL_REPO"
+        sha256 = "e22cc53a7d3855a811befca8c52657f9a096c93cf36c098964b62a751be4791e"
         format = "tar.gz"
         in_subdir = true

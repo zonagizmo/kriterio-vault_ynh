@@ -4,6 +4,14 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 ynh_abort_if_errors
+# set -u (nounset) queda activo tras ynh_abort_if_errors, y en esta version
+# del core de YunoHost expone un bug propio en helpers.v2.d/logging (una
+# variable "l" sin inicializar en el path de limpieza de ynh_systemd_action/
+# ynh_clean_check_starting) que mata el script entero -- incluso tras una
+# instalacion CORRECTA -- por referenciar esa variable sin definir. No
+# depende de nuestro codigo, asi que se desactiva nounset y se deja solo
+# errexit (que es lo que realmente necesitamos).
+set +u
 
 ynh_script_progression "Restaurando los ficheros de la aplicación..."
 ynh_restore_file --origin_path="$install_dir"

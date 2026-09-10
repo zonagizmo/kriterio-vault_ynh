@@ -5,7 +5,7 @@ name = "Kriterio Vault"
 description.en = "Central sync server for Kriterio Vault (accounting/management app)"
 description.es = "Servidor central de sincronización de Kriterio Vault (app de gestión y contabilidad)"
 
-version = "1.10.1~ynh1"
+version = "1.10.1~ynh2"
 
 maintainers = ["zonagizmo"]
 

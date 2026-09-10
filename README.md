@@ -37,11 +37,25 @@ corregido:
    *sí* estaba en esa lista). `libpq-dev` y `ynh_abort_if_errors` eran
    correcciones legítimas pero no la causa de este segundo fallo. Empujado
    el repo principal y recalculado el checksum en `manifest.toml`.
+4. **`v1.10.1~ynh1`** — con todo lo anterior corregido, el tercer intento
+   real llegó mucho más lejos (`pip install` instaló `psycopg2-binary` sin
+   problema, systemd arrancó el proceso) pero la app crasheaba en el
+   arranque: `psycopg2.errors.SyntaxError: syntax error at or near
+   "PRAGMA"` en `_migraciones()` (`backend/app/main.py`). Esa función usa
+   `PRAGMA table_info(...)`, sintaxis propia de SQLite, para poner al día
+   esquemas SQLite antiguos — no tiene sentido y directamente no funciona
+   contra Postgres. Como `crear_tablas()` ya crea el esquema completo
+   actual en cualquier base de datos nueva, se corrigió para que
+   `_migraciones()` se salte entera cuando el dialecto no es SQLite (bug
+   de la app, corregido en el repo principal, versión de la app
+   `1.10.00` → `1.10.01`). Checksum recalculado, versión de paquete
+   `1.10.0~ynh3` → `1.10.1~ynh1` (a partir de aquí el número de paquete
+   sigue el de la app, no un contador de intentos de packaging).
 
 Con `ynh_abort_if_errors` en su sitio, cualquier fallo futuro debería
 detener el script de inmediato con un mensaje claro, en vez de repetir este
-patrón. **Pendiente: confirmar que la instalación con `ynh3` completa
-correctamente.**
+patrón. **Pendiente: confirmar que la instalación con `1.10.1~ynh1`
+completa correctamente.**
 
 ## Por qué es un repositorio aparte
 
@@ -60,9 +74,9 @@ Hecho: repo `kriterio-vault_ynh` creado y con el código; repo principal
 
 Queda:
 
-1. **Confirmar que la instalación con `ynh3` completa correctamente** en el
-   YunoHost real de pruebas (ver sección "Estado" arriba) — si vuelve a
-   fallar, revisar el log con `--debug` en vez de asumir que estos fixes
+1. **Confirmar que la instalación con `1.10.1~ynh1` completa correctamente**
+   en el YunoHost real de pruebas (ver sección "Estado" arriba) — si vuelve
+   a fallar, revisar el log con `--debug` en vez de asumir que estos fixes
    fueron los únicos problemas. **Antes de cada intento, asegúrate de que
    el repo principal `kriterio-vault` está empujado a GitHub** (`git push`
    en `GestionMGD_web`) — el fallo de `ynh3` fue justo no haberlo hecho.

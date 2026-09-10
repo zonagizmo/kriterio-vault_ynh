@@ -5,7 +5,7 @@ name = "Kriterio Vault"
 description.en = "Central sync server for Kriterio Vault (accounting/management app)"
 description.es = "Servidor central de sincronización de Kriterio Vault (app de gestión y contabilidad)"
 
-version = "1.10.0~ynh3"
+version = "1.10.1~ynh1"
 
 maintainers = ["zonagizmo"]
 
@@ -76,6 +76,6 @@ ram.runtime = "128M"
         # desactualizado en cuanto haya nuevos commits — hay que recalcularlo
         # (ver README.md de este paquete) antes de cada `yunohost app upgrade`.
         url = "https://github.com/zonagizmo/kriterio-vault/archive/refs/heads/main.tar.gz"
-        sha256 = "c97b965862e5827b131c739d33502cc7eb6460e256659edfe7eb795a75110a7d"
+        sha256 = "67cdd69c7d8bd48866c246bd09f4b8f3c6a9cf27b9b895b1094598ecc55953d7"
         format = "tar.gz"
         in_subdir = true

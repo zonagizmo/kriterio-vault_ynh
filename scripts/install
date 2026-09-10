@@ -13,6 +13,13 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
+ynh_script_progression "Descargando y colocando el código fuente..."
+# El recurso `resources.sources` del manifiesto solo hace que el core
+# pre-descargue y verifique el checksum del tarball; colocarlo en
+# $install_dir sigue siendo responsabilidad del script (se ve en el log de
+# instalación: "Prefetching asset main" no extrae nada por sí solo).
+ynh_setup_source --dest_dir="$install_dir" --source_id="main"
+
 ynh_script_progression "Configurando el entorno virtual de Python..."
 python3 -m venv "$install_dir/backend/venv"
 "$install_dir/backend/venv/bin/pip" install --upgrade pip --quiet
@@ -22,7 +29,7 @@ ynh_script_progression "Configurando la aplicación (.env)..."
 secret_key=$(ynh_string_random --length=32)
 ynh_app_setting_set --app=$app --key=secret_key --value="$secret_key"
 cat > "$install_dir/backend/.env" <<EOF
-DATABASE_URL=postgresql://$db_name:$db_pwd@localhost:5432/$db_name
+DATABASE_URL=postgresql://$db_user:$db_pwd@localhost:5432/$db_name
 SECRET_KEY=$secret_key
 EOF
 

@@ -25,10 +25,22 @@ corregido:
      pip necesitaba compilarlo desde código fuente, lo que requiere
      `libpq-dev` (cabeceras de PostgreSQL) — no estaba en `resources.apt`.
      Añadido.
+3. **`ynh3`** — con los dos fixes de `ynh2` puestos, el segundo intento real
+   volvió a fallar exactamente igual: `ModuleNotFoundError: No module named
+   'psycopg2'`. La causa esta vez era mucho más tonta: **el repo principal
+   `kriterio-vault` nunca se había empujado a GitHub** con el código de
+   sincronización — el commit llevaba desde la sesión anterior solo en
+   local. `resources.sources` descarga el tarball de la rama `main` de
+   GitHub, así que la instalación seguía trayéndose la versión antigua
+   `v1.07.00`, cuyo `requirements.txt` ni siquiera tiene `psycopg2-binary`
+   (por eso `pip install` no daba ningún error: instalaba todo lo que
+   *sí* estaba en esa lista). `libpq-dev` y `ynh_abort_if_errors` eran
+   correcciones legítimas pero no la causa de este segundo fallo. Empujado
+   el repo principal y recalculado el checksum en `manifest.toml`.
 
 Con `ynh_abort_if_errors` en su sitio, cualquier fallo futuro debería
 detener el script de inmediato con un mensaje claro, en vez de repetir este
-patrón. **Pendiente: confirmar que la instalación con `ynh2` completa
+patrón. **Pendiente: confirmar que la instalación con `ynh3` completa
 correctamente.**
 
 ## Por qué es un repositorio aparte
@@ -48,10 +60,12 @@ Hecho: repo `kriterio-vault_ynh` creado y con el código; repo principal
 
 Queda:
 
-1. **Confirmar que la instalación con `ynh2` completa correctamente** en el
+1. **Confirmar que la instalación con `ynh3` completa correctamente** en el
    YunoHost real de pruebas (ver sección "Estado" arriba) — si vuelve a
-   fallar, revisar el log con `--debug` en vez de asumir que estos dos
-   fixes fueron los únicos problemas.
+   fallar, revisar el log con `--debug` en vez de asumir que estos fixes
+   fueron los únicos problemas. **Antes de cada intento, asegúrate de que
+   el repo principal `kriterio-vault` está empujado a GitHub** (`git push`
+   en `GestionMGD_web`) — el fallo de `ynh3` fue justo no haberlo hecho.
 2. **Recalcular el checksum tras cada cambio en el repo principal** (apunta
    a la rama `main`, no a un tag fijo — ver el comentario en `manifest.toml`):
    ```bash

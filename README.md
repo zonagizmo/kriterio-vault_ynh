@@ -51,11 +51,23 @@ corregido:
    `1.10.00` → `1.10.01`). Checksum recalculado, versión de paquete
    `1.10.0~ynh3` → `1.10.1~ynh1` (a partir de aquí el número de paquete
    sigue el de la app, no un contador de intentos de packaging).
+5. **`1.10.1~ynh2`** — la app arrancó correctamente esta vez (17s, sin
+   timeout), pero el instalador siguió reportando fallo: justo después de
+   que `ynh_systemd_action` termina con éxito, la limpieza interna del
+   propio core (`ynh_clean_check_starting` → `ynh_secure_remove`)
+   referencia una variable `l` sin inicializar en
+   `/usr/share/yunohost/helpers.v2.d/logging` (línea 334) — **bug del
+   core de YunoHost en esta versión**, no de este paquete. Antes del fix
+   de `ynh2` (que añadió `ynh_abort_if_errors`, activando `set -u`) esa
+   referencia se expandía a vacío en silencio; con `nounset` activo mata
+   el shell entero, incluso tras una instalación correcta. Se mantiene
+   `ynh_abort_if_errors` (sigue haciendo falta para abortar ante fallos
+   reales, como el de `pip` en `ynh2`) pero se añade `set +u` justo
+   después en los 5 scripts, para no heredar ese bug ajeno.
 
-Con `ynh_abort_if_errors` en su sitio, cualquier fallo futuro debería
-detener el script de inmediato con un mensaje claro, en vez de repetir este
-patrón. **Pendiente: confirmar que la instalación con `1.10.1~ynh1`
-completa correctamente.**
+Con estos fixes, cualquier fallo real (nuestro) debería seguir deteniendo
+el script de inmediato con un mensaje claro. **Pendiente: confirmar que la
+instalación con `1.10.1~ynh2` completa correctamente.**
 
 ## Por qué es un repositorio aparte
 
@@ -74,7 +86,7 @@ Hecho: repo `kriterio-vault_ynh` creado y con el código; repo principal
 
 Queda:
 
-1. **Confirmar que la instalación con `1.10.1~ynh1` completa correctamente**
+1. **Confirmar que la instalación con `1.10.1~ynh2` completa correctamente**
    en el YunoHost real de pruebas (ver sección "Estado" arriba) — si vuelve
    a fallar, revisar el log con `--debug` en vez de asumir que estos fixes
    fueron los únicos problemas. **Antes de cada intento, asegúrate de que

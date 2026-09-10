@@ -5,14 +5,31 @@ Paquete YunoHost para el servidor central de sincronización de
 **alternativa** al despliegue Debian a pelo (`deploy/` en el repo principal)
 — sirven para instancias distintas, no se sustituyen entre sí.
 
-## Estado: escrito, sin probar contra una instancia YunoHost real
+## Estado: en pruebas contra una instancia YunoHost real (arm64, bookworm)
 
-No he tenido acceso a un YunoHost real para validarlo con
-`yunohost app install --debug`. Está basado en las convenciones de
-`packaging_format = 2` / helpers 2.1, pero nombres exactos de helpers o
-comportamientos de detalle pueden haber cambiado según la versión de
-YunoHost del servidor destino. **Instálalo primero en modo debug y revisa
-el log paso a paso** antes de darlo por bueno.
+Dos intentos de instalación real hasta ahora, cada uno encontró un bug ya
+corregido:
+
+1. **`ynh1`** — al script `install` le faltaba `ynh_setup_source`
+   (`resources.sources` solo precarga/verifica el tarball, no lo coloca en
+   `$install_dir`; eso lo hace el propio script). Corregido.
+2. **`ynh2`** — dos bugs a la vez:
+   - Ningún script (`install/upgrade/remove/backup/restore`) llamaba a
+     `ynh_abort_if_errors` tras `source /usr/share/yunohost/helpers`. Sin
+     eso el script no aborta cuando un comando falla, así que cuando
+     `pip install` no pudo instalar `psycopg2-binary` el script siguió
+     igualmente hasta el final, dejó el venv roto, y el fallo real quedó
+     enterrado bajo un timeout de 5 minutos de `systemd` reiniciando el
+     servicio en bucle. Añadido a los 5 scripts.
+   - `psycopg2-binary` no tenía wheel precompilada para esta plataforma y
+     pip necesitaba compilarlo desde código fuente, lo que requiere
+     `libpq-dev` (cabeceras de PostgreSQL) — no estaba en `resources.apt`.
+     Añadido.
+
+Con `ynh_abort_if_errors` en su sitio, cualquier fallo futuro debería
+detener el script de inmediato con un mensaje claro, en vez de repetir este
+patrón. **Pendiente: confirmar que la instalación con `ynh2` completa
+correctamente.**
 
 ## Por qué es un repositorio aparte
 
@@ -31,9 +48,10 @@ Hecho: repo `kriterio-vault_ynh` creado y con el código; repo principal
 
 Queda:
 
-1. **Instalarlo en un YunoHost real** con `--debug` (ver más abajo) — no
-   probado todavía contra ninguna instancia, es el paso que más puede
-   necesitar ajustes.
+1. **Confirmar que la instalación con `ynh2` completa correctamente** en el
+   YunoHost real de pruebas (ver sección "Estado" arriba) — si vuelve a
+   fallar, revisar el log con `--debug` en vez de asumir que estos dos
+   fixes fueron los únicos problemas.
 2. **Recalcular el checksum tras cada cambio en el repo principal** (apunta
    a la rama `main`, no a un tag fijo — ver el comentario en `manifest.toml`):
    ```bash

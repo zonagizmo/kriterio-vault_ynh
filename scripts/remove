@@ -9,6 +9,8 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
+ynh_abort_if_errors
+
 ynh_script_progression "Eliminando el servicio systemd..."
 ynh_remove_systemd_config
 

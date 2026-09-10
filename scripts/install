@@ -13,6 +13,8 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
+ynh_abort_if_errors
+
 ynh_script_progression "Descargando y colocando el código fuente..."
 # El recurso `resources.sources` del manifiesto solo hace que el core
 # pre-descargue y verifique el checksum del tarball; colocarlo en

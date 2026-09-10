@@ -3,6 +3,8 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
+ynh_abort_if_errors
+
 ynh_script_progression "Copiando los ficheros de la aplicación..."
 # El venv se excluye a propósito: es grande y se reconstruye en segundos
 # desde requirements.txt al restaurar — no es "dato", es entorno.

@@ -3,6 +3,8 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
+ynh_abort_if_errors
+
 ynh_script_progression "Restaurando los ficheros de la aplicación..."
 ynh_restore_file --origin_path="$install_dir"
 
